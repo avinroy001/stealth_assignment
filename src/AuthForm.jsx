@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
     TextField,
     Button,
@@ -11,41 +12,56 @@ import { LockOpen, PersonAdd } from '@mui/icons-material';
 
 const AuthForm = () => {
     const [isRegister, setIsRegister] = useState(false);
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleAuth = async (type: 'login' | 'register') => {
+    const handleAuth = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-
-            if (type === 'register') {
-                if (!username || !email || !password || !confirmPassword) {
-                    throw new Error('All fields are required for registration.');
+            if (isRegister) {
+                if (!email || !password || !confirmPassword) {
+                    throw new Error('All fields are required.');
                 }
                 if (password !== confirmPassword) {
                     throw new Error('Passwords do not match.');
                 }
-                console.log('Registering:', { username, email, password });
+
+                const response = await axios.post('http://localhost:3001/auth/register', {
+                    email,
+                    password,
+                });
+
+                console.log('Registration successful:', response.data);
+                alert('Registration successful. Please login.');
+                setIsRegister(false);
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
             } else {
                 if (!email || !password) {
-                    throw new Error('Email and password are required for login.');
+                    throw new Error('Email and password are required.');
                 }
-                console.log('Logging in:', { email, password });
-            }
 
-            setUsername('');
-            setEmail('');
-            setPassword('');
-            setConfirmPassword('');
+                const response = await axios.post('http://localhost:3001/auth/login', {
+                    email,
+                    password,
+                });
+
+                const { token } = response.data;
+                localStorage.setItem('authToken', token);
+                alert('Login successful!');
+                console.log('Token stored:', token);
+
+                setEmail('');
+                setPassword('');
+            }
         } catch (err) {
-            setError(err.message || 'An error occurred.');
+            setError(err.response?.data?.message || err.message || 'An error occurred.');
         } finally {
             setLoading(false);
         }
@@ -62,18 +78,8 @@ const AuthForm = () => {
             <Card sx={{ width: 400, p: 3, borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
                     <Typography variant="h5" align="center" gutterBottom color="primary">
-                        {isRegister ? 'Create Account' : 'Login'}
+                        {isRegister ? 'Register' : 'Login'}
                     </Typography>
-
-                    {isRegister && (
-                        <TextField
-                            label="Username"
-                            fullWidth
-                            margin="normal"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                    )}
 
                     <TextField
                         label="Email"
@@ -115,7 +121,7 @@ const AuthForm = () => {
                         color="primary"
                         fullWidth
                         sx={{ mt: 2 }}
-                        onClick={() => handleAuth(isRegister ? 'register' : 'login')}
+                        onClick={handleAuth}
                         disabled={loading}
                     >
                         {loading ? 'Please wait...' : isRegister ? 'Register' : 'Login'}
