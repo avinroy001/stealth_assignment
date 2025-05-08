@@ -9,6 +9,7 @@ import {
     Typography,
 } from '@mui/material';
 import { LockOpen, PersonAdd } from '@mui/icons-material';
+import TaskManager from './TaskManager/TaskManager';
 
 const AuthForm = () => {
     const [isRegister, setIsRegister] = useState(false);
@@ -17,6 +18,7 @@ const AuthForm = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const handleAuth = async () => {
         setLoading(true);
@@ -57,8 +59,7 @@ const AuthForm = () => {
                 alert('Login successful!');
                 console.log('Token stored:', token);
 
-                setEmail('');
-                setPassword('');
+                setIsAuthenticated(true);
             }
         } catch (err) {
             setError(err.response?.data?.message || err.message || 'An error occurred.');
@@ -66,6 +67,9 @@ const AuthForm = () => {
             setLoading(false);
         }
     };
+    if (isAuthenticated) {
+        return <TaskManager />;
+    }
 
     return (
         <Box
