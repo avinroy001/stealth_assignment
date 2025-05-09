@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -8,42 +8,30 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import { red } from "@mui/material/colors";
 
-const TaskCard = ({ task, onTaskUpdated }) => {
+const TaskCard = ({ task, onTaskUpdated, onEditClick }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [status, setStatus] = useState(task.status);
   const [priority, setPriority] = useState(task.priority);
 
-  const handleEdit = async () => {
+
+
+  
+  
+
+  const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-      await axios.put(
+      const token = localStorage.getItem("token");
+      await axios.delete(
         `https://stealth-assignment.onrender.com/task/${task._id}`,
-        { title, description, status, priority },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      onTaskUpdated(); 
-      setIsEditing(false);
-    } catch (err) {
-      console.error("Error updating task:", err);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      await axios.delete(`https://stealth-assignment.onrender.com/task/${task._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
       onTaskUpdated(); 
     } catch (err) {
       console.error("Error deleting task:", err);
@@ -53,7 +41,13 @@ const TaskCard = ({ task, onTaskUpdated }) => {
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6" component="div">
             {title}
           </Typography>
@@ -76,33 +70,59 @@ const TaskCard = ({ task, onTaskUpdated }) => {
           {description}
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mt: 2,
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Checkbox
-  checked={status === "complete"}
-  onChange={async () => {
-    const newStatus = status === "complete" ? "incomplete" : "complete";
-    setStatus(newStatus);
-    try {
-      const token = localStorage.getItem("authToken");
-      await axios.put(`https://stealth-assignment.onrender.com/task/${task._id}`, {
-        ...task,
-        status: newStatus,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      onTaskUpdated();
-    } catch (err) {
-      console.error("Status update failed:", err);
-    }
-  }}
-/>
+            <Checkbox
+              checked={status === "complete"}
+              onChange={async () => {
+                const token = localStorage.getItem("token");
 
-            <Typography variant="body2">{status === "complete" ? "Complete" : "Incomplete"}</Typography>
+                if (status === "incomplete") {
+                  try {
+                    const response = await axios.put(
+                      `https://stealth-assignment.onrender.com/task/${task._id}/complete`,
+                      {},
+                      {
+                        headers: { Authorization: `Bearer ${token}` },
+                      }
+                    );
+                    setStatus("complete");
+                    onTaskUpdated();
+                  } catch (err) {
+                    console.error("Error marking as complete:", err);
+                  }
+                } else {
+                  try {
+                    const response = await axios.put(
+                      `https://stealth-assignment.onrender.com/task/${task._id}`,
+                      { ...task, status: "incomplete" },
+                      {
+                        headers: { Authorization: `Bearer ${token}` },
+                      }
+                    );
+                    setStatus("incomplete");
+                    onTaskUpdated();
+                  } catch (err) {
+                    console.error("Error marking as incomplete:", err);
+                  }
+                }
+              }}
+            />
+
+            <Typography variant="body2">
+              {status === "complete" ? "Complete" : "Incomplete"}
+            </Typography>
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-            <IconButton onClick={() => setIsEditing(!isEditing)}>
+            <IconButton onClick={() => onEditClick(task)}>
               <EditIcon />
             </IconButton>
             <IconButton onClick={handleDelete} color="error">
@@ -118,13 +138,13 @@ const TaskCard = ({ task, onTaskUpdated }) => {
 const getPriorityColor = (priority) => {
   switch (priority) {
     case "Low":
-      return "#FFB3BA"; 
+      return "#FFB3BA";
     case "Medium":
-      return "#FFDFBA"; 
+      return "#FFDFBA";
     case "High":
-      return "#B3D7FF"; 
+      return "#B3D7FF";
     default:
-      return "#CCCCCC"; 
+      return "#CCCCCC";
   }
 };
 
