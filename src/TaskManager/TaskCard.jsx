@@ -29,7 +29,7 @@ const TaskCard = ({ task, onTaskUpdated }) => {
           },
         }
       );
-      onTaskUpdated(); // Refresh tasks
+      onTaskUpdated(); 
       setIsEditing(false);
     } catch (err) {
       console.error("Error updating task:", err);
@@ -44,7 +44,7 @@ const TaskCard = ({ task, onTaskUpdated }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      onTaskUpdated(); // Refresh tasks
+      onTaskUpdated(); 
     } catch (err) {
       console.error("Error deleting task:", err);
     }
@@ -115,17 +115,16 @@ const TaskCard = ({ task, onTaskUpdated }) => {
   );
 };
 
-// Helper function to map priority to colors
 const getPriorityColor = (priority) => {
   switch (priority) {
     case "Low":
-      return "#FFB3BA"; // Light Red
+      return "#FFB3BA"; 
     case "Medium":
-      return "#FFDFBA"; // Light Yellow
+      return "#FFDFBA"; 
     case "High":
-      return "#B3D7FF"; // Light Blue
+      return "#B3D7FF"; 
     default:
-      return "#CCCCCC"; // Gray
+      return "#CCCCCC"; 
   }
 };
 

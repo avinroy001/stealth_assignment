@@ -1,70 +1,122 @@
-# Getting Started with Create React App
+✅ README.md
+# Task Manager App 📝
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack Task Management application built with **React (MUI)** on the frontend and **Node.js, Express, MongoDB** on the backend. Authenticated users can create, update, delete, and manage their tasks by status and priority.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Tech Stack
 
-### `npm start`
+- **Frontend:** React, Material UI (MUI), Axios
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose
+- **Authentication:** JWT-based token auth
+- **Database:** MongoDB (Atlas or local)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📁 Project Structure
 
-### `npm test`
+task-manager/
+│
+├── backend/ # Express + MongoDB server
+│ ├── controllers/ # Task and auth logic
+│ ├── models/ # Mongoose schemas
+│ ├── routes/ # Route handlers
+│ ├── middleware/ # Auth middleware
+│ └── server.js # Main server file
+│
+├── frontend/ # React app with MUI
+│ ├── components/ # UI components (TaskCard, NewTaskModal, etc.)
+│ └── App.js # Main App file
+│
+└── README.md # You're here
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Setup Instructions
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Backend Setup
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Navigate to the backend folder:
+   ```bash
+   cd backend
+Install dependencies:
+npm install
+Create a .env file:
+PORT=3001
+MONGO_URI=mongodb://localhost:27017/taskmanager
+JWT_SECRET=your_jwt_secret_here
+Start the backend server:
+npm i
+npm start
+It will run at: http://localhost:3001/
+Frontend Setup
+Navigate to the frontend folder:
+cd frontend
+Install dependencies:
+npm install
+Update your API base URL if needed:
+In axios.defaults.baseURL or relevant request file, make sure it's set to:
+http://localhost:3001/
+Start the frontend dev server:
+npm i
+npm start
+It will run at: http://localhost:3000/
+💾 Database Schema (MongoDB)
 
-### `npm run eject`
+🧾 Task Schema
+{
+  title: { type: String, required: true },
+  description: { type: String },
+  dueDate: { type: Date },
+  priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
+  status: { type: String, enum: ['complete', 'incomplete'], default: 'incomplete' },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+  createdAt: { type: Date, default: Date.now }
+}
+👤 User Schema
+{
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true } // Hashed using bcrypt
+}
+✅ Features
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+🔐 User registration and login (JWT)
+📋 Create, update, and delete tasks
+📌 Prioritize tasks (Low / Medium / High)
+📅 Set due dates
+✅ Mark tasks as complete/incomplete
+🌙 Dark mode ready (with MUI theming)
+🧼 Error handling and form validation
+🔄 Loading states for API calls
+🧪 Run Locally
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Start backend:
+cd backend
+ npm i
+npm start
+Start frontend in a new terminal:
+cd frontend
+ npm i
+npm start
+Visit: http://localhost:3000/
+📬 API Endpoints Summary
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Method	Route	Description
+POST	/auth/register	Register a user
+POST	/auth/login	Login & get token
+GET	/task/	Get all tasks
+POST	/task/	Create a task
+PUT	/task/:id	Update task
+DELETE	/task/:id	Delete task
+📦 Future Improvements
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Tag support / filtering
+File attachments
+Drag-and-drop task sorting
+Admin dashboard
+🧑‍💻 Author
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Developed by Avinash Roy
