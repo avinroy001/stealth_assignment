@@ -71,7 +71,7 @@ const NewTaskModal = ({ onTaskCreated, taskToEdit, onTaskUpdated, isOpen, setIsO
     setError("");
     setLoading(true);
   
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
     const payload = { title, description, status, priority, dueDate };
   
     try {

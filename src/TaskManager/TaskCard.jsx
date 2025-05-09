@@ -23,7 +23,7 @@ const TaskCard = ({ task, onTaskUpdated, onEditClick }) => {
 
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       await axios.delete(
         `https://stealth-assignment.onrender.com/task/${task._id}`,
         {
@@ -82,7 +82,7 @@ const TaskCard = ({ task, onTaskUpdated, onEditClick }) => {
             <Checkbox
               checked={status === "complete"}
               onChange={async () => {
-                const token = localStorage.getItem("token");
+                const token = localStorage.getItem("authToken");
 
                 if (status === "incomplete") {
                   try {
