@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -51,12 +51,12 @@ const NewTaskModal = ({ onTaskCreated, taskToEdit = null, onTaskUpdated  }) => {
       const payload = { title, description, status, priority };
   
       const response = isEditMode
-        ? await axios.put(`http://localhost:3001/task/${taskToEdit._id}`, payload, {
+        ? await axios.put(`https://stealth-assignment.onrender.com/task/${taskToEdit._id}`, payload, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           })
-        : await axios.post("http://localhost:3001/task/", payload, {
+        : await axios.post("https://stealth-assignment.onrender.com/task/", payload, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -75,6 +75,19 @@ const NewTaskModal = ({ onTaskCreated, taskToEdit = null, onTaskUpdated  }) => {
       setLoading(false);
     }
   };
+
+
+useEffect(() => {
+  if (taskToEdit) {
+    setTitle(taskToEdit.title || "");
+    setDescription(taskToEdit.description || "");
+    setDueDate(taskToEdit.dueDate || "");
+    setPriority(taskToEdit.priority || "Medium");
+    setStatus(taskToEdit.status || "incomplete");
+    setOpen(true); 
+  }
+}, [taskToEdit]);
+
   
 
   return (

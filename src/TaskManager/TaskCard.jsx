@@ -21,7 +21,7 @@ const TaskCard = ({ task, onTaskUpdated }) => {
     try {
       const token = localStorage.getItem("authToken");
       await axios.put(
-        `http://localhost:3001/task/${task._id}`,
+        `https://stealth-assignment.onrender.com/task/${task._id}`,
         { title, description, status, priority },
         {
           headers: {
@@ -39,7 +39,7 @@ const TaskCard = ({ task, onTaskUpdated }) => {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      await axios.delete(`http://localhost:3001/task/${task._id}`, {
+      await axios.delete(`https://stealth-assignment.onrender.com/task/${task._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -85,7 +85,7 @@ const TaskCard = ({ task, onTaskUpdated }) => {
     setStatus(newStatus);
     try {
       const token = localStorage.getItem("authToken");
-      await axios.put(`http://localhost:3001/task/${task._id}`, {
+      await axios.put(`https://stealth-assignment.onrender.com/task/${task._id}`, {
         ...task,
         status: newStatus,
       }, {

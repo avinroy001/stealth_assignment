@@ -33,7 +33,7 @@ const AuthForm = () => {
                     throw new Error('Passwords do not match.');
                 }
 
-                const response = await axios.post('http://localhost:3001/auth/register', {
+                const response = await axios.post('https://stealth-assignment.onrender.com/auth/register', {
                     email,
                     password,
                 });
@@ -49,7 +49,7 @@ const AuthForm = () => {
                     throw new Error('Email and password are required.');
                 }
 
-                const response = await axios.post('http://localhost:3001/auth/login', {
+                const response = await axios.post('https://stealth-assignment.onrender.com/auth/login', {
                     email,
                     password,
                 });

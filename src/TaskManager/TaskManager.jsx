@@ -31,7 +31,7 @@ const handleNewTask = (newTask) => {
       const token = localStorage.getItem("authToken");
   
       try {
-        const response = await axios.get("http://localhost:3001/task/", {
+        const response = await axios.get("https://stealth-assignment.onrender.com/task/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
