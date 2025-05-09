@@ -22,9 +22,9 @@ const modalStyle = {
   p: 4,
 };
 
-const NewTaskModal = ({ onTaskCreated, taskToEdit = null, onTaskUpdated  }) => {
-    const isEditMode = Boolean(taskToEdit);
-  const [open, setOpen] = useState(false);
+const NewTask = ({ onTaskCreated, taskToEdit = null, onTaskUpdated, isOpen, setIsOpen }) => {
+  const isEditMode = Boolean(taskToEdit);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -33,41 +33,61 @@ const NewTaskModal = ({ onTaskCreated, taskToEdit = null, onTaskUpdated  }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleOpen = () => {
-    setOpen(true);
+  // Populate form fields when editing
+  useEffect(() => {
+    if (taskToEdit) {
+      setTitle(taskToEdit.title || "");
+      setDescription(taskToEdit.description || "");
+      setDueDate(taskToEdit.dueDate?.substring(0, 10) || "");
+      setPriority(taskToEdit.priority || "Medium");
+      setStatus(taskToEdit.status || "incomplete");
+    } else {
+      resetForm();
+    }
+  }, [taskToEdit]);
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setDueDate("");
+    setPriority("Medium");
+    setStatus("incomplete");
+    setError("");
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setIsOpen(false);
+    resetForm();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     const token = localStorage.getItem("authToken");
-  
+
+    const payload = {
+      title,
+      description,
+      dueDate,
+      priority,
+      status,
+    };
+
     try {
-      const payload = { title, description, status, priority };
-  
-      const response = isEditMode
-        ? await axios.put(`https://stealth-assignment.onrender.com/task/${taskToEdit._id}`, payload, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-        : await axios.post("https://stealth-assignment.onrender.com/task/", payload, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-  
       if (isEditMode) {
-        onTaskUpdated(); // fetch updated task list
+        await axios.put(`https://stealth-assignment.onrender.com/task/${taskToEdit._id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        onTaskUpdated(); // refresh task list
       } else {
-        onTaskCreated(response.data);
+        const response = await axios.post("https://stealth-assignment.onrender.com/task/", payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        onTaskCreated(response.data); // add new task to UI
       }
-  
+
       handleClose();
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Failed to submit task.");
@@ -76,48 +96,17 @@ const NewTaskModal = ({ onTaskCreated, taskToEdit = null, onTaskUpdated  }) => {
     }
   };
 
-
-useEffect(() => {
-  if (taskToEdit) {
-    setTitle(taskToEdit.title || "");
-    setDescription(taskToEdit.description || "");
-    setDueDate(taskToEdit.dueDate || "");
-    setPriority(taskToEdit.priority || "Medium");
-    setStatus(taskToEdit.status || "incomplete");
-    setOpen(true); 
-  }
-}, [taskToEdit]);
-
-  
-
   return (
-    <div>
-      <Button
-        variant="contained"
-        onClick={handleOpen}
-        sx={{
-          bgcolor: "primary.main",
-          "&:hover": { bgcolor: "primary.dark" },
-          fontWeight: 600,
-        }}
-      >
-        Create Task
-      </Button>
+    <Modal open={isOpen} onClose={handleClose} aria-labelledby="modal-title">
+      <Box sx={modalStyle}>
+        <Typography id="modal-title" variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+          {isEditMode ? "Edit Task" : "Create New Task"}
+        </Typography>
+        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+          {isEditMode ? "Update the task details below." : "Enter the task details below."}
+        </Typography>
 
-      <Modal open={open} onClose={handleClose} aria-labelledby="modal-title">
-        <Box sx={modalStyle}>
-          <Typography
-            id="modal-title"
-            variant="h6"
-            component="h2"
-            sx={{ fontWeight: "bold", mb: 1 }}
-          >
-            Create New Task
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-            Enter the task details below.
-          </Typography>
-
+        <form onSubmit={handleSubmit}>
           <TextField
             label="Title"
             fullWidth
@@ -136,7 +125,7 @@ useEffect(() => {
             onChange={(e) => setDescription(e.target.value)}
             margin="dense"
           />
-          
+
           <TextField
             label="Due Date"
             type="date"
@@ -148,9 +137,9 @@ useEffect(() => {
           />
 
           <FormControl fullWidth margin="dense">
-            <InputLabel id="priority-select-label">Priority</InputLabel>
+            <InputLabel id="priority-label">Priority</InputLabel>
             <Select
-              labelId="priority-select-label"
+              labelId="priority-label"
               value={priority}
               label="Priority"
               onChange={(e) => setPriority(e.target.value)}
@@ -162,9 +151,9 @@ useEffect(() => {
           </FormControl>
 
           <FormControl fullWidth margin="dense">
-            <InputLabel id="status-select-label">Status</InputLabel>
+            <InputLabel id="status-label">Status</InputLabel>
             <Select
-              labelId="status-select-label"
+              labelId="status-label"
               value={status}
               label="Status"
               onChange={(e) => setStatus(e.target.value)}
@@ -182,21 +171,26 @@ useEffect(() => {
 
           <Box display="flex" justifyContent="flex-end" mt={3}>
             <Button
+              onClick={handleClose}
               variant="outlined"
               color="secondary"
-              onClick={handleClose}
-              sx={{ mr: 1 }}
+              sx={{ mr: 2 }}
             >
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleSubmit}>
-              Save
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              sx={{ fontWeight: 600 }}
+            >
+              {isEditMode ? "Update Task" : "Create Task"}
             </Button>
           </Box>
-        </Box>
-      </Modal>
-    </div>
+        </form>
+      </Box>
+    </Modal>
   );
 };
 
-export default NewTaskModal;
+export default NewTask;
