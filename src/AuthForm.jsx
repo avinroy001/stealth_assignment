@@ -9,7 +9,7 @@ import {
     Typography,
 } from '@mui/material';
 import { LockOpen, PersonAdd } from '@mui/icons-material';
-import TaskManager from './TaskManager/TaskManager';
+import { useNavigate } from 'react-router-dom';
 
 const AuthForm = () => {
     const [isRegister, setIsRegister] = useState(false);
@@ -19,6 +19,7 @@ const AuthForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const nav = useNavigate();
 
     const handleAuth = async () => {
         setLoading(true);
@@ -68,7 +69,7 @@ const AuthForm = () => {
         }
     };
     if (isAuthenticated) {
-        return <TaskManager />;
+        nav('/task');
     }
 
     return (

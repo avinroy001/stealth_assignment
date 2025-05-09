@@ -22,9 +22,8 @@ const modalStyle = {
   p: 4,
 };
 
-const NewTask = ({ onTaskCreated, taskToEdit = null, onTaskUpdated, isOpen, setIsOpen }) => {
-  const isEditMode = Boolean(taskToEdit);
-
+const NewTask = ({ onTaskCreated }) => {
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -32,19 +31,6 @@ const NewTask = ({ onTaskCreated, taskToEdit = null, onTaskUpdated, isOpen, setI
   const [status, setStatus] = useState("incomplete");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // Populate form fields when editing
-  useEffect(() => {
-    if (taskToEdit) {
-      setTitle(taskToEdit.title || "");
-      setDescription(taskToEdit.description || "");
-      setDueDate(taskToEdit.dueDate?.substring(0, 10) || "");
-      setPriority(taskToEdit.priority || "Medium");
-      setStatus(taskToEdit.status || "incomplete");
-    } else {
-      resetForm();
-    }
-  }, [taskToEdit]);
 
   const resetForm = () => {
     setTitle("");
@@ -55,8 +41,9 @@ const NewTask = ({ onTaskCreated, taskToEdit = null, onTaskUpdated, isOpen, setI
     setError("");
   };
 
+  const handleOpen = () => setOpen(true);
   const handleClose = () => {
-    setIsOpen(false);
+    setOpen(false);
     resetForm();
   };
 
@@ -76,120 +63,108 @@ const NewTask = ({ onTaskCreated, taskToEdit = null, onTaskUpdated, isOpen, setI
     };
 
     try {
-      if (isEditMode) {
-        await axios.put(`https://stealth-assignment.onrender.com/task/${taskToEdit._id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        onTaskUpdated(); // refresh task list
-      } else {
-        const response = await axios.post("https://stealth-assignment.onrender.com/task/", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        onTaskCreated(response.data); // add new task to UI
-      }
-
+      const response = await axios.post("http://localhost:3001/task/", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      onTaskCreated(response.data);
       handleClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Failed to submit task.");
+      setError(err.response?.data?.message || err.message || "Failed to create task.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal open={isOpen} onClose={handleClose} aria-labelledby="modal-title">
-      <Box sx={modalStyle}>
-        <Typography id="modal-title" variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-          {isEditMode ? "Edit Task" : "Create New Task"}
-        </Typography>
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-          {isEditMode ? "Update the task details below." : "Enter the task details below."}
-        </Typography>
+    <>
+      <Button onClick={handleOpen} variant="contained" sx={{ fontWeight: 600 }}>
+        Create Task
+      </Button>
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Title"
-            fullWidth
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            margin="dense"
-            required
-          />
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" fontWeight="bold" mb={1}>
+            Create New Task
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Enter the task details below.
+          </Typography>
 
-          <TextField
-            label="Description"
-            multiline
-            rows={3}
-            fullWidth
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            margin="dense"
-          />
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Title"
+              fullWidth
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              margin="dense"
+              required
+            />
 
-          <TextField
-            label="Due Date"
-            type="date"
-            fullWidth
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            margin="dense"
-            InputLabelProps={{ shrink: true }}
-          />
+            <TextField
+              label="Description"
+              multiline
+              rows={3}
+              fullWidth
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              margin="dense"
+            />
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="priority-label">Priority</InputLabel>
-            <Select
-              labelId="priority-label"
-              value={priority}
-              label="Priority"
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              <MenuItem value="Low">Low</MenuItem>
-              <MenuItem value="Medium">Medium</MenuItem>
-              <MenuItem value="High">High</MenuItem>
-            </Select>
-          </FormControl>
+            <TextField
+              label="Due Date"
+              type="date"
+              fullWidth
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              margin="dense"
+              InputLabelProps={{ shrink: true }}
+            />
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="status-label">Status</InputLabel>
-            <Select
-              labelId="status-label"
-              value={status}
-              label="Status"
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <MenuItem value="incomplete">Incomplete</MenuItem>
-              <MenuItem value="complete">Complete</MenuItem>
-            </Select>
-          </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel id="priority-label">Priority</InputLabel>
+              <Select
+                labelId="priority-label"
+                value={priority}
+                label="Priority"
+                onChange={(e) => setPriority(e.target.value)}
+              >
+                <MenuItem value="Low">Low</MenuItem>
+                <MenuItem value="Medium">Medium</MenuItem>
+                <MenuItem value="High">High</MenuItem>
+              </Select>
+            </FormControl>
 
-          {error && (
-            <Typography variant="body2" color="error" mt={2}>
-              {error}
-            </Typography>
-          )}
+            <FormControl fullWidth margin="dense">
+              <InputLabel id="status-label">Status</InputLabel>
+              <Select
+                labelId="status-label"
+                value={status}
+                label="Status"
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <MenuItem value="incomplete">Incomplete</MenuItem>
+                <MenuItem value="complete">Complete</MenuItem>
+              </Select>
+            </FormControl>
 
-          <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button
-              onClick={handleClose}
-              variant="outlined"
-              color="secondary"
-              sx={{ mr: 2 }}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
-              sx={{ fontWeight: 600 }}
-            >
-              {isEditMode ? "Update Task" : "Create Task"}
-            </Button>
-          </Box>
-        </form>
-      </Box>
-    </Modal>
+            {error && (
+              <Typography variant="body2" color="error" mt={2}>
+                {error}
+              </Typography>
+            )}
+
+            <Box display="flex" justifyContent="flex-end" mt={3}>
+              <Button onClick={handleClose} variant="outlined" color="secondary" sx={{ mr: 2 }}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="contained" disabled={loading} sx={{ fontWeight: 600 }}>
+                Create Task
+              </Button>
+            </Box>
+          </form>
+        </Box>
+      </Modal>
+    </>
   );
 };
 
